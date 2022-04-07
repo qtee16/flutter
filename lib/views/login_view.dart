@@ -1,12 +1,13 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/views/register_view.dart';
 
+import '../constants/routes.dart';
 import '../firebase_options.dart';
 
 class LoginView extends StatefulWidget {
-  static const String loginRoute = '/login/';
   const LoginView({Key? key}) : super(key: key);
 
   @override
@@ -73,14 +74,14 @@ class _LoginViewState extends State<LoginView> {
                         final password = _password.text.trim();
                         try {
                           final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-                          print(userCredential);
+                          Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
                         } on FirebaseAuthException catch (e) {
                           if (e.code == 'user-not-found') {
-                            print('User not found');
+                            log('User not found');
                           } else if (e.code == 'wrong-password'){
-                            print('Password incorrect');
+                            log('Password incorrect');
                           } else if (e.code == 'invalid-email'){
-                            print('Invalid email');
+                            log('Invalid email');
                           }
                         }
 
@@ -89,7 +90,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(RegisterView.registerRoute, (route) => false);
+                      Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
                     },
                     child: const Text('Not registered yet? Register now!')
                   )
