@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +109,7 @@ Future<bool> showLogOutDialog(BuildContext context) {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Sign out'),
+          title: const Text('Sign out', style: TextStyle(fontWeight: FontWeight.bold),),
           content: const Text('Are you sure you want to sign out ?'),
           actions: [
             TextButton(
@@ -131,6 +129,7 @@ Future<bool> showLogOutDialog(BuildContext context) {
       }
   ).then((value) => value ?? false);
 }
+
 
 
 
