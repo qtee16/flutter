@@ -1,13 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_project/service/auth/auth_exception.dart';
 import 'package:flutter_project/service/auth/auth_provider.dart';
 import 'package:flutter_project/service/auth/auth_user.dart';
 
+import '../../firebase_options.dart';
+
 class FirebaseAuthProvider implements AuthProvider {
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   @override
   Future<AuthUser> createUser({required String email, required String password}) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      sendVerifiedEmail();
       final user = currentUser;
       if (user != null) {
         return user;
@@ -76,10 +87,19 @@ class FirebaseAuthProvider implements AuthProvider {
   Future<void> sendVerifiedEmail() async{
     final user = FirebaseAuth.instance.currentUser;
     if(user != null) {
-      await user.sendEmailVerification();
+      try {
+        await user.sendEmailVerification();
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'too-many-requests') {
+          throw TooManyRequestsAuthException();
+        }
+      }
+
     } else {
       throw UserNotLoggedInAuthException();
     }
   }
+
+
 
 }

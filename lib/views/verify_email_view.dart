@@ -1,6 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/constants/routes.dart';
+import 'package:flutter_project/service/auth/auth_service.dart';
+import 'package:flutter_project/utilities/show_error_dialog.dart';
+
+import '../service/auth/auth_exception.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({Key? key}) : super(key: key);
@@ -22,9 +25,13 @@ class _VerifyEmailState extends State<VerifyEmail> {
           const Text('We have sent an email. Follow the link in the email to verify your email address.'),
           const Text('If you have not received a verification email yet, click the button below'),
           TextButton(
-              onPressed: () {
-                final user = FirebaseAuth.instance.currentUser;
-                user?.sendEmailVerification();
+              onPressed: () async {
+                try {
+                  await AuthService.firebase().sendVerifiedEmail();
+                } on TooManyRequestsAuthException {
+                  await showErrorDialog(context, 'Too many requests');
+                }
+
               },
               style: TextButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -34,7 +41,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
           ),
           TextButton(
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+                AuthService.firebase().logOut();
                 Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               style: TextButton.styleFrom(
